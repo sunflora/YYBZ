@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>八字分析 - Chinese Eight Words Analysis</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>八字分析</h1>
+        <h2>Chinese Eight Words Analysis</h2>
+        
+        <form id="birthdateForm">
+            <div class="form-group">
+                <label for="year">年份 (Year):</label>
+                <input type="number" id="year" min="1900" max="2100" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="month">月份 (Month):</label>
+                <select id="month" required>
+                    <option value="">选择月份</option>
+                    <option value="1">1月 (January)</option>
+                    <option value="2">2月 (February)</option>
+                    <option value="3">3月 (March)</option>
+                    <option value="4">4月 (April)</option>
+                    <option value="5">5月 (May)</option>
+                    <option value="6">6月 (June)</option>
+                    <option value="7">7月 (July)</option>
+                    <option value="8">8月 (August)</option>
+                    <option value="9">9月 (September)</option>
+                    <option value="10">10月 (October)</option>
+                    <option value="11">11月 (November)</option>
+                    <option value="12">12月 (December)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="day">日期 (Day):</label>
+                <input type="number" id="day" min="1" max="31" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="time">出生时间 (Birth Time):</label>
+                <input type="time" id="time" required>
+                <small>请输入24小时制时间 (Enter time in 24-hour format)</small>
+            </div>
+            
+            <button type="submit">分析八字 (Analyze Eight Words)</button>
+        </form>
+        
+        <div id="result" class="result"></div>
+    </div>
+    
+    <script src="script.js?v=3"></script>
+</body>
+</html>

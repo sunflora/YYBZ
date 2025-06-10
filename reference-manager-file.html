@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BaZi Reference Data Manager - File Storage</title>
+    <style>
+        /* Same styles as original */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 30px; }
+        h1 { color: #333; margin-bottom: 30px; text-align: center; }
+        .form-section, .list-section { margin-bottom: 40px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px; }
+        .form-group { display: flex; flex-direction: column; }
+        label { font-weight: bold; margin-bottom: 5px; color: #555; }
+        input, select, textarea { padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #667eea; }
+        .four-pillars { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 20px 0; padding: 20px; background: #f8f9fa; border-radius: 5px; }
+        .pillar-input { text-align: center; }
+        .pillar-input input { width: 100%; text-align: center; font-size: 18px; font-weight: bold; }
+        button { padding: 12px 24px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; transition: all 0.3s; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5a67d8; }
+        .btn-secondary { background: #6c757d; color: white; margin-left: 10px; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-edit { background: #28a745; color: white; margin-right: 10px; }
+        .reference-list { margin-top: 30px; }
+        .reference-item { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px; padding: 20px; margin-bottom: 15px; position: relative; }
+        .reference-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .reference-title { font-size: 18px; font-weight: bold; color: #333; }
+        .reference-date { color: #666; font-size: 14px; }
+        .reference-pillars { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 15px 0; }
+        .pillar-display { text-align: center; background: white; padding: 10px; border-radius: 5px; border: 1px solid #ddd; }
+        .pillar-label { font-size: 12px; color: #666; margin-bottom: 5px; }
+        .pillar-value { font-size: 20px; font-weight: bold; color: #333; }
+        .reference-notes { margin-top: 15px; padding: 10px; background: white; border-radius: 5px; font-style: italic; color: #666; }
+        .action-buttons { display: flex; gap: 10px; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: #f8f9fa; padding: 20px; border-radius: 5px; text-align: center; }
+        .stat-value { font-size: 36px; font-weight: bold; color: #667eea; }
+        .stat-label { color: #666; margin-top: 5px; }
+        .storage-status { background: #e3f2fd; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+        .status-indicator { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; }
+        .status-connected { background: #4caf50; }
+        .status-disconnected { background: #f44336; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>八字参考数据管理系统 - 文件存储版</h1>
+        <h2 style="text-align: center; color: #666; margin-bottom: 30px;">BaZi Reference Data Manager - File Storage</h2>
+        
+        <!-- Storage Status -->
+        <div class="storage-status">
+            <div id="storageStatus">
+                <span class="status-indicator status-disconnected"></span>
+                <strong>Storage Status:</strong> <span id="statusText">Checking...</span>
+            </div>
+            <div style="margin-top: 10px;">
+                <button class="btn-primary" onclick="selectDataFile()">选择数据文件 (Select Data File)</button>
+                <button class="btn-secondary" onclick="createNewFile()">创建新文件 (Create New File)</button>
+                <span id="currentFile" style="margin-left: 15px; color: #666;"></span>
+            </div>
+        </div>
+        
+        <!-- Statistics -->
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="totalCount">0</div>
+                <div class="stat-label">Total References</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="yearRange">-</div>
+                <div class="stat-label">Year Range</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="lastUpdated">-</div>
+                <div class="stat-label">Last Updated</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="autoSave">OFF</div>
+                <div class="stat-label">Auto-Save</div>
+            </div>
+        </div>
+        
+        <!-- Form Section -->
+        <div class="form-section">
+            <h3>添加/编辑参考数据 (Add/Edit Reference Data)</h3>
+            <form id="referenceForm">
+                <input type="hidden" id="editId" value="">
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>测试名称 (Test Name)</label>
+                        <input type="text" id="testName" required placeholder="e.g., Before 立春">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>日期 (Date)</label>
+                        <input type="date" id="testDate" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>时间 (Time)</label>
+                        <input type="time" id="testTime" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>数据来源 (Source)</label>
+                        <input type="text" id="source" placeholder="e.g., myfate.herokuapp.com">
+                    </div>
+                </div>
+                
+                <div class="four-pillars">
+                    <div class="pillar-input">
+                        <label>时柱 (Hour)</label>
+                        <input type="text" id="hourPillar" maxlength="2" required placeholder="己卯">
+                    </div>
+                    <div class="pillar-input">
+                        <label>日柱 (Day)</label>
+                        <input type="text" id="dayPillar" maxlength="2" required placeholder="乙酉">
+                    </div>
+                    <div class="pillar-input">
+                        <label>月柱 (Month)</label>
+                        <input type="text" id="monthPillar" maxlength="2" required placeholder="戊寅">
+                    </div>
+                    <div class="pillar-input">
+                        <label>年柱 (Year)</label>
+                        <input type="text" id="yearPillar" maxlength="2" required placeholder="乙卯">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>备注 (Notes)</label>
+                    <textarea id="notes" rows="3" placeholder="Any special notes about this test case..."></textarea>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <button type="submit" class="btn-primary" id="submitBtn">添加 (Add)</button>
+                    <button type="button" class="btn-secondary" onclick="resetForm()">重置 (Reset)</button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- List Section -->
+        <div class="list-section">
+            <h3>参考数据列表 (Reference Data List)</h3>
+            <div id="referenceList" class="reference-list">
+                <!-- Dynamic content will be inserted here -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // File System Access API support
+        let fileHandle = null;
+        let references = [];
+        let autoSaveEnabled = false;
+        
+        // Check if File System Access API is supported
+        function isFileSystemSupported() {
+            return 'showOpenFilePicker' in window;
+        }
+        
+        // Initialize storage status
+        function updateStorageStatus() {
+            const statusEl = document.getElementById('statusText');
+            const indicatorEl = document.querySelector('.status-indicator');
+            const autoSaveEl = document.getElementById('autoSave');
+            
+            if (!isFileSystemSupported()) {
+                statusEl.textContent = 'File System Access not supported (use Chrome/Edge)';
+                indicatorEl.className = 'status-indicator status-disconnected';
+                return;
+            }
+            
+            if (fileHandle) {
+                statusEl.textContent = 'Connected to file';
+                indicatorEl.className = 'status-indicator status-connected';
+                autoSaveEnabled = true;
+                autoSaveEl.textContent = 'ON';
+                autoSaveEl.style.color = '#4caf50';
+                document.getElementById('currentFile').textContent = `File: ${fileHandle.name}`;
+            } else {
+                statusEl.textContent = 'No file selected (data will be lost on refresh)';
+                indicatorEl.className = 'status-indicator status-disconnected';
+                autoSaveEnabled = false;
+                autoSaveEl.textContent = 'OFF';
+                autoSaveEl.style.color = '#f44336';
+                document.getElementById('currentFile').textContent = '';
+            }
+        }
+        
+        // Select existing data file
+        async function selectDataFile() {
+            if (!isFileSystemSupported()) {
+                alert('File System Access API not supported. Please use Chrome or Edge browser.');
+                return;
+            }
+            
+            try {
+                [fileHandle] = await window.showOpenFilePicker({
+                    types: [{
+                        description: 'JSON files',
+                        accept: { 'application/json': ['.json'] }
+                    }]
+                });
+                
+                const file = await fileHandle.getFile();
+                const content = await file.text();
+                references = JSON.parse(content);
+                
+                updateStorageStatus();
+                updateStats();
+                displayReferences();
+                
+                alert(`成功加载 ${references.length} 条数据！\\nLoaded ${references.length} records successfully!`);
+            } catch (error) {
+                if (error.name !== 'AbortError') {
+                    alert('加载文件失败：' + error.message);
+                }
+            }
+        }
+        
+        // Create new data file
+        async function createNewFile() {
+            if (!isFileSystemSupported()) {
+                alert('File System Access API not supported. Please use Chrome or Edge browser.');
+                return;
+            }
+            
+            try {
+                fileHandle = await window.showSaveFilePicker({
+                    types: [{
+                        description: 'JSON files',
+                        accept: { 'application/json': ['.json'] }
+                    }],
+                    suggestedName: `bazi-references-${new Date().toISOString().slice(0, 10)}.json`
+                });
+                
+                references = [];
+                await saveToFile();
+                
+                updateStorageStatus();
+                updateStats();
+                displayReferences();
+                
+                alert('新文件创建成功！\\nNew file created successfully!');
+            } catch (error) {
+                if (error.name !== 'AbortError') {
+                    alert('创建文件失败：' + error.message);
+                }
+            }
+        }
+        
+        // Save data to file
+        async function saveToFile() {
+            if (!fileHandle) return false;
+            
+            try {
+                const writable = await fileHandle.createWritable();
+                await writable.write(JSON.stringify(references, null, 2));
+                await writable.close();
+                return true;
+            } catch (error) {
+                alert('保存失败：' + error.message);
+                return false;
+            }
+        }
+        
+        // Add or update reference
+        async function saveReference(reference) {
+            if (reference.id) {
+                // Update existing
+                references = references.map(r => r.id === reference.id ? reference : r);
+            } else {
+                // Add new
+                reference.id = Date.now().toString();
+                reference.createdAt = new Date().toISOString();
+                references.push(reference);
+            }
+            
+            reference.updatedAt = new Date().toISOString();
+            
+            // Auto-save to file if connected
+            if (autoSaveEnabled) {
+                await saveToFile();
+            }
+            
+            updateStats();
+            displayReferences();
+        }
+        
+        // Delete reference
+        async function deleteReference(id) {
+            if (confirm('确定要删除这条参考数据吗？(Are you sure you want to delete this reference?)')) {
+                references = references.filter(r => r.id !== id);
+                
+                // Auto-save to file if connected
+                if (autoSaveEnabled) {
+                    await saveToFile();
+                }
+                
+                updateStats();
+                displayReferences();
+            }
+        }
+        
+        // Edit reference
+        function editReference(id) {
+            const reference = references.find(r => r.id === id);
+            
+            if (reference) {
+                document.getElementById('editId').value = reference.id;
+                document.getElementById('testName').value = reference.name;
+                document.getElementById('testDate').value = reference.date;
+                document.getElementById('testTime').value = reference.time;
+                document.getElementById('source').value = reference.source || '';
+                document.getElementById('yearPillar').value = reference.yearPillar;
+                document.getElementById('monthPillar').value = reference.monthPillar;
+                document.getElementById('dayPillar').value = reference.dayPillar;
+                document.getElementById('hourPillar').value = reference.hourPillar;
+                document.getElementById('notes').value = reference.notes || '';
+                
+                document.getElementById('submitBtn').textContent = '更新 (Update)';
+                document.getElementById('referenceForm').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+        
+        // Display all references
+        function displayReferences() {
+            const listDiv = document.getElementById('referenceList');
+            
+            if (references.length === 0) {
+                listDiv.innerHTML = '<p style="text-align: center; color: #666;">暂无参考数据 (No reference data yet)</p>';
+                return;
+            }
+            
+            listDiv.innerHTML = references.map(ref => `
+                <div class="reference-item">
+                    <div class="reference-header">
+                        <div>
+                            <div class="reference-title">${ref.name}</div>
+                            <div class="reference-date">${ref.date} ${ref.time}</div>
+                            ${ref.source ? `<div class="reference-date">Source: ${ref.source}</div>` : ''}
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn-edit" onclick="editReference('${ref.id}')">编辑 (Edit)</button>
+                            <button class="btn-danger" onclick="deleteReference('${ref.id}')">删除 (Delete)</button>
+                        </div>
+                    </div>
+                    <div class="reference-pillars">
+                        <div class="pillar-display">
+                            <div class="pillar-label">时柱</div>
+                            <div class="pillar-value">${ref.hourPillar}</div>
+                        </div>
+                        <div class="pillar-display">
+                            <div class="pillar-label">日柱</div>
+                            <div class="pillar-value">${ref.dayPillar}</div>
+                        </div>
+                        <div class="pillar-display">
+                            <div class="pillar-label">月柱</div>
+                            <div class="pillar-value">${ref.monthPillar}</div>
+                        </div>
+                        <div class="pillar-display">
+                            <div class="pillar-label">年柱</div>
+                            <div class="pillar-value">${ref.yearPillar}</div>
+                        </div>
+                    </div>
+                    ${ref.notes ? `<div class="reference-notes">${ref.notes}</div>` : ''}
+                </div>
+            `).join('');
+        }
+        
+        // Update statistics
+        function updateStats() {
+            document.getElementById('totalCount').textContent = references.length;
+            
+            if (references.length > 0) {
+                const years = references.map(r => new Date(r.date).getFullYear());
+                const minYear = Math.min(...years);
+                const maxYear = Math.max(...years);
+                document.getElementById('yearRange').textContent = 
+                    minYear === maxYear ? minYear : `${minYear}-${maxYear}`;
+                
+                const latestUpdate = references
+                    .map(r => new Date(r.updatedAt || r.createdAt))
+                    .sort((a, b) => b - a)[0];
+                document.getElementById('lastUpdated').textContent = 
+                    latestUpdate.toLocaleDateString();
+            } else {
+                document.getElementById('yearRange').textContent = '-';
+                document.getElementById('lastUpdated').textContent = '-';
+            }
+        }
+        
+        // Reset form
+        function resetForm() {
+            document.getElementById('referenceForm').reset();
+            document.getElementById('editId').value = '';
+            document.getElementById('submitBtn').textContent = '添加 (Add)';
+        }
+        
+        // Form submission
+        document.getElementById('referenceForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const reference = {
+                id: document.getElementById('editId').value || null,
+                name: document.getElementById('testName').value,
+                date: document.getElementById('testDate').value,
+                time: document.getElementById('testTime').value,
+                source: document.getElementById('source').value,
+                yearPillar: document.getElementById('yearPillar').value,
+                monthPillar: document.getElementById('monthPillar').value,
+                dayPillar: document.getElementById('dayPillar').value,
+                hourPillar: document.getElementById('hourPillar').value,
+                notes: document.getElementById('notes').value
+            };
+            
+            await saveReference(reference);
+            resetForm();
+            alert(reference.id ? '更新成功！Updated successfully!' : '添加成功！Added successfully!');
+        });
+        
+        // Initialize
+        updateStorageStatus();
+        updateStats();
+        displayReferences();
+        
+        // Try to load from localStorage as fallback
+        const fallbackData = localStorage.getItem('baziReferences');
+        if (fallbackData && !fileHandle) {
+            try {
+                references = JSON.parse(fallbackData);
+                updateStats();
+                displayReferences();
+                
+                if (references.length > 0) {
+                    alert(`发现 ${references.length} 条缓存数据。建议选择或创建文件来永久保存。\\nFound ${references.length} cached records. Please select or create a file for permanent storage.`);
+                }
+            } catch (error) {
+                console.error('Failed to load localStorage data:', error);
+            }
+        }
+    </script>
+</body>
+</html>

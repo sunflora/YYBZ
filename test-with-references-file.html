@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BaZi Calculator Test Suite - File Storage Compatible</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .controls {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .import-section {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+        }
+        
+        button {
+            padding: 12px 24px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .summary-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid transparent;
+        }
+        
+        .summary-card.pass {
+            border-color: #28a745;
+        }
+        
+        .summary-card.fail {
+            border-color: #dc3545;
+        }
+        
+        .summary-value {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .summary-label {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .test-results {
+            margin-top: 30px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+            min-width: 80px;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .pass {
+            background-color: #d4edda !important;
+        }
+        
+        .fail {
+            background-color: #f8d7da !important;
+        }
+        
+        .partial {
+            background-color: #fff3cd !important;
+        }
+        
+        .no-data {
+            text-align: center;
+            color: #666;
+            padding: 50px;
+            font-size: 18px;
+        }
+        
+        .data-source {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .file-input {
+            margin: 10px;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-connected {
+            background: #4caf50;
+        }
+        
+        .status-disconnected {
+            background: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>八字测试对比系统<br><small>BaZi Test Comparison System - File Storage Compatible</small></h1>
+        
+        <!-- Data Source Section -->
+        <div class="import-section">
+            <h3>数据来源 (Data Source)</h3>
+            <div id="dataSourceStatus" class="data-source">
+                <span class="status-indicator status-disconnected"></span>
+                <span>No data loaded. Please import test data.</span>
+            </div>
+            
+            <div class="file-input">
+                <button class="btn-primary" onclick="document.getElementById('importFile').click()">
+                    导入测试数据 (Import Test Data)
+                </button>
+                <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importTestData(event)">
+                
+                <button class="btn-secondary" onclick="loadFromLocalStorage()">
+                    从缓存加载 (Load from Cache)
+                </button>
+                
+                <button class="btn-secondary" onclick="loadSampleData()">
+                    加载示例数据 (Load Sample Data)
+                </button>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn-primary" onclick="runAllTests()" id="runTestsBtn" disabled>
+                运行所有测试 (Run All Tests)
+            </button>
+            <button class="btn-secondary" onclick="clearResults()">清除结果 (Clear Results)</button>
+            <button class="btn-secondary" onclick="window.open('reference-manager-file.html')">
+                管理参考数据 (Manage References)
+            </button>
+        </div>
+        
+        <div id="summary" class="summary"></div>
+        <div id="results" class="test-results"></div>
+    </div>
+    
+    <script src="script.js?v=3"></script>
+    <script>
+        let testReferences = [];
+        
+        // Import test data from file
+        function importTestData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (Array.isArray(data)) {
+                        testReferences = data;
+                        updateDataSourceStatus();
+                        alert(`成功导入 ${testReferences.length} 条测试数据！\\nSuccessfully imported ${testReferences.length} test records!`);
+                    } else {
+                        alert('无效的数据格式！\\nInvalid data format!');
+                    }
+                } catch (error) {
+                    alert('导入失败：' + error.message + '\\nImport failed: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+        
+        // Load from localStorage (fallback)
+        function loadFromLocalStorage() {
+            const data = localStorage.getItem('baziReferences');
+            if (data) {
+                try {
+                    testReferences = JSON.parse(data);
+                    updateDataSourceStatus();
+                    alert(`从缓存加载了 ${testReferences.length} 条数据！\\nLoaded ${testReferences.length} records from cache!`);
+                } catch (error) {
+                    alert('加载缓存失败：' + error.message);
+                }
+            } else {
+                alert('缓存中没有找到数据！\\nNo data found in cache!');
+            }
+        }
+        
+        // Load sample data for testing
+        function loadSampleData() {
+            testReferences = [
+                {
+                    id: "1",
+                    name: "立春前测试",
+                    date: "1975-02-04",
+                    time: "01:00",
+                    yearPillar: "甲寅",
+                    monthPillar: "丁丑",
+                    dayPillar: "乙酉",
+                    hourPillar: "丁丑",
+                    source: "sample",
+                    notes: "Before 立春 1975/2/4 18:59"
+                },
+                {
+                    id: "2", 
+                    name: "月柱测试",
+                    date: "1975-01-01",
+                    time: "12:00",
+                    yearPillar: "甲寅",
+                    monthPillar: "丙子",
+                    dayPillar: "癸未",
+                    hourPillar: "戊午",
+                    source: "sample",
+                    notes: "Should be 大雪 month"
+                },
+                {
+                    id: "3",
+                    name: "日柱测试",
+                    date: "1975-04-09", 
+                    time: "06:30",
+                    yearPillar: "乙卯",
+                    monthPillar: "庚辰",
+                    dayPillar: "乙酉",
+                    hourPillar: "己卯",
+                    source: "sample",
+                    notes: "Day pillar reference test"
+                }
+            ];
+            
+            updateDataSourceStatus();
+            alert(`加载了 ${testReferences.length} 条示例数据！\\nLoaded ${testReferences.length} sample records!`);
+        }
+        
+        // Update data source status
+        function updateDataSourceStatus() {
+            const statusDiv = document.getElementById('dataSourceStatus');
+            const runBtn = document.getElementById('runTestsBtn');
+            
+            if (testReferences.length > 0) {
+                statusDiv.innerHTML = `
+                    <span class="status-indicator status-connected"></span>
+                    <span>已加载 ${testReferences.length} 条测试数据 (${testReferences.length} test records loaded)</span>
+                `;
+                runBtn.disabled = false;
+            } else {
+                statusDiv.innerHTML = `
+                    <span class="status-indicator status-disconnected"></span>
+                    <span>No data loaded. Please import test data.</span>
+                `;
+                runBtn.disabled = true;
+            }
+        }
+        
+        function runAllTests() {
+            if (testReferences.length === 0) {
+                document.getElementById('results').innerHTML = `
+                    <div class="no-data">
+                        没有找到参考数据。请先导入测试数据。<br>
+                        No reference data found. Please import test data first.
+                    </div>
+                `;
+                return;
+            }
+            
+            const results = [];
+            let totalTests = testReferences.length;
+            let passedTests = 0;
+            let pillarStats = {
+                year: { total: 0, passed: 0 },
+                month: { total: 0, passed: 0 },
+                day: { total: 0, passed: 0 },
+                hour: { total: 0, passed: 0 }
+            };
+            
+            testReferences.forEach(ref => {
+                const result = runSingleTest(ref);
+                results.push(result);
+                
+                if (result.allPassed) passedTests++;
+                
+                // Update pillar statistics
+                ['year', 'month', 'day', 'hour'].forEach(pillar => {
+                    if (result.pillars && result.pillars[pillar]) {
+                        pillarStats[pillar].total++;
+                        if (result.pillars[pillar].match) {
+                            pillarStats[pillar].passed++;
+                        }
+                    }
+                });
+            });
+            
+            displaySummary(totalTests, passedTests, pillarStats);
+            displayResults(results);
+        }
+        
+        function runSingleTest(reference) {
+            try {
+                // Parse date
+                const [year, month, day] = reference.date.split('-').map(Number);
+                const timeResult = timeToShichen(reference.time);
+                const [hours, minutes] = reference.time.split(':').map(Number);
+                
+                // Calculate BaZi
+                const calculated = calculateBaZi(year, month, day, timeResult.shichen, timeResult.isEarlyZi, hours, minutes);
+                
+                // Format results
+                const result = {
+                    name: reference.name,
+                    date: reference.date,
+                    time: reference.time,
+                    source: reference.source,
+                    notes: reference.notes,
+                    allPassed: true,
+                    pillars: {}
+                };
+                
+                // Compare each pillar
+                const pillarNames = ['year', 'month', 'day', 'hour'];
+                const pillarMap = {
+                    year: 'yearPillar',
+                    month: 'monthPillar', 
+                    day: 'dayPillar',
+                    hour: 'hourPillar'
+                };
+                
+                pillarNames.forEach(pillar => {
+                    const calculatedValue = calculated[pillar].stem + calculated[pillar].branch;
+                    const expectedValue = reference[pillarMap[pillar]];
+                    const match = calculatedValue === expectedValue;
+                    
+                    result.pillars[pillar] = {
+                        calculated: calculatedValue,
+                        expected: expectedValue,
+                        match: match
+                    };
+                    
+                    if (!match) result.allPassed = false;
+                });
+                
+                return result;
+                
+            } catch (error) {
+                return {
+                    name: reference.name,
+                    date: reference.date,
+                    time: reference.time,
+                    error: error.message,
+                    allPassed: false
+                };
+            }
+        }
+        
+        function displaySummary(total, passed, pillarStats) {
+            const summaryDiv = document.getElementById('summary');
+            const overallRate = total > 0 ? Math.round(passed / total * 100) : 0;
+            
+            summaryDiv.innerHTML = `
+                <div class="summary-card ${overallRate === 100 ? 'pass' : overallRate > 0 ? 'partial' : 'fail'}">
+                    <div class="summary-value">${overallRate}%</div>
+                    <div class="summary-label">Overall Pass Rate<br>${passed}/${total} tests</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">${pillarStats.year.total > 0 ? Math.round(pillarStats.year.passed / pillarStats.year.total * 100) : 0}%</div>
+                    <div class="summary-label">年柱 Accuracy<br>${pillarStats.year.passed}/${pillarStats.year.total}</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">${pillarStats.month.total > 0 ? Math.round(pillarStats.month.passed / pillarStats.month.total * 100) : 0}%</div>
+                    <div class="summary-label">月柱 Accuracy<br>${pillarStats.month.passed}/${pillarStats.month.total}</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">${pillarStats.day.total > 0 ? Math.round(pillarStats.day.passed / pillarStats.day.total * 100) : 0}%</div>
+                    <div class="summary-label">日柱 Accuracy<br>${pillarStats.day.passed}/${pillarStats.day.total}</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">${pillarStats.hour.total > 0 ? Math.round(pillarStats.hour.passed / pillarStats.hour.total * 100) : 0}%</div>
+                    <div class="summary-label">時柱 Accuracy<br>${pillarStats.hour.passed}/${pillarStats.hour.total}</div>
+                </div>
+            `;
+        }
+        
+        function displayResults(results) {
+            const resultsDiv = document.getElementById('results');
+            
+            let html = `
+                <h3>详细测试结果 (Detailed Test Results)</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>测试名称<br>Test Name</th>
+                            <th>日期时间<br>Date/Time</th>
+                            <th>时柱<br>Hour</th>
+                            <th>日柱<br>Day</th>
+                            <th>月柱<br>Month</th>
+                            <th>年柱<br>Year</th>
+                            <th>状态<br>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            results.forEach(result => {
+                const rowClass = result.allPassed ? 'pass' : result.error ? 'fail' : 'partial';
+                
+                html += `<tr class="${rowClass}">`;
+                
+                // Column 1: Test Name
+                html += `<td>
+                    ${result.name}
+                    ${result.source ? `<div style="font-size: 11px; color: #666; font-style: italic;">Source: ${result.source}</div>` : ''}
+                    ${result.notes ? `<div style="font-size: 11px; color: #666; font-style: italic;">${result.notes}</div>` : ''}
+                </td>`;
+                
+                // Column 2: Date/Time
+                html += `<td>${result.date}<br>${result.time}</td>`;
+                
+                // Columns 3-6: Pillars (Hour, Day, Month, Year)
+                if (result.error) {
+                    html += `<td colspan="4" style="text-align: center;">Error: ${result.error}</td>`;
+                } else {
+                    // Hour Column
+                    html += `<td>`;
+                    if (result.pillars.hour) {
+                        html += result.pillars.hour.calculated;
+                        if (!result.pillars.hour.match) {
+                            html += `<br><small style="color: #dc3545;">≠ ${result.pillars.hour.expected}</small>`;
+                        }
+                    } else {
+                        html += 'N/A';
+                    }
+                    html += `</td>`;
+                    
+                    // Day Column
+                    html += `<td>`;
+                    if (result.pillars.day) {
+                        html += result.pillars.day.calculated;
+                        if (!result.pillars.day.match) {
+                            html += `<br><small style="color: #dc3545;">≠ ${result.pillars.day.expected}</small>`;
+                        }
+                    } else {
+                        html += 'N/A';
+                    }
+                    html += `</td>`;
+                    
+                    // Month Column
+                    html += `<td>`;
+                    if (result.pillars.month) {
+                        html += result.pillars.month.calculated;
+                        if (!result.pillars.month.match) {
+                            html += `<br><small style="color: #dc3545;">≠ ${result.pillars.month.expected}</small>`;
+                        }
+                    } else {
+                        html += 'N/A';
+                    }
+                    html += `</td>`;
+                    
+                    // Year Column
+                    html += `<td>`;
+                    if (result.pillars.year) {
+                        html += result.pillars.year.calculated;
+                        if (!result.pillars.year.match) {
+                            html += `<br><small style="color: #dc3545;">≠ ${result.pillars.year.expected}</small>`;
+                        }
+                    } else {
+                        html += 'N/A';
+                    }
+                    html += `</td>`;
+                }
+                
+                // Column 7: Status
+                html += `<td>${result.error ? '✗ ERROR' : (result.allPassed ? '✓ PASS' : '✗ FAIL')}</td>`;
+                html += '</tr>';
+            });
+            
+            html += `</tbody></table>`;
+            resultsDiv.innerHTML = html;
+        }
+        
+        function clearResults() {
+            document.getElementById('summary').innerHTML = '';
+            document.getElementById('results').innerHTML = '';
+        }
+        
+        // Initialize
+        updateDataSourceStatus();
+    </script>
+</body>
+</html>
