@@ -16,66 +16,86 @@ const elements = {
     '申': '金', '酉': '金', '戌': '土', '亥': '水'
 };
 
-// 加载完整的节气数据 (从localStorage获取完整的75年数据)
-function loadCompleteSolarTermsData() {
-    try {
-        const storedData = localStorage.getItem('monthSolarTermsData');
-        if (storedData) {
-            return JSON.parse(storedData);
-        }
-    } catch (error) {
-        console.log('Error loading stored solar terms data:', error);
+// 从JSON文件加载完整的节气数据 (1950-2025年，76年完整数据集)
+let solarTermsDataCache = null;
+
+async function loadCompleteSolarTermsData() {
+    // 如果已经加载过，直接返回缓存
+    if (solarTermsDataCache) {
+        console.log('Using cached solar terms data');
+        return solarTermsDataCache;
     }
     
-    // 如果没有存储数据，返回基本数据
-    return {
-        1975: {
-            lichun: [2, 4, 18, 59],      // 立春 1975/2/4 18:59
-            jingzhe: [3, 6, 13, 6],      // 驚蟄 1975/3/6 13:06
-            qingming: [4, 5, 22, 20],    // 清明 1975/4/5 22:20
-            lixia: [5, 6, 5, 31],        // 立夏 1975/5/6 5:31
-            mangzhong: [6, 6, 10, 50],   // 芒種 1975/6/6 10:50
-            xiaoshu: [7, 7, 14, 27],     // 小暑 1975/7/7 14:27
-            liqiu: [8, 7, 16, 22],       // 立秋 1975/8/7 16:22
-            bailu: [9, 8, 16, 30],       // 白露 1975/9/8 16:30
-            hanlu: [10, 8, 15, 10],      // 寒露 1975/10/8 15:10
-            lidong: [11, 8, 12, 32],     // 立冬 1975/11/8 12:32
-            daxue: [12, 7, 8, 58],       // 大雪 1975/12/7 8:58
-            xiaohan: [1, 6, 7, 18]       // 小寒 1976/1/6 7:18 (次年)
-        },
-        1976: {
-            lichun: [2, 5, 0, 40],       // 立春 1976/2/5 0:40
-            jingzhe: [3, 5, 18, 48],     // 驚蟄 1976/3/5 18:48
-            qingming: [4, 4, 23, 47],    // 清明 1976/4/4 23:47
-            lixia: [5, 5, 17, 15],       // 立夏 1976/5/5 17:15
-            mangzhong: [6, 5, 21, 31],   // 芒種 1976/6/5 21:31
-            xiaoshu: [7, 7, 7, 51],      // 小暑 1976/7/7 7:51
-            liqiu: [8, 7, 17, 39],       // 立秋 1976/8/7 17:39
-            bailu: [9, 7, 20, 28],       // 白露 1976/9/7 20:28
-            hanlu: [10, 8, 11, 58],      // 寒露 1976/10/8 11:58
-            lidong: [11, 7, 14, 59],     // 立冬 1976/11/7 14:59
-            daxue: [12, 7, 7, 41],       // 大雪 1976/12/7 7:41
-            xiaohan: [1, 5, 18, 51]      // 小寒 1977/1/5 18:51 (次年)
-        },
-        2025: {
-            lichun: [2, 3, 22, 10],      // 立春 2025/2/3 22:10
-            jingzhe: [3, 5, 16, 4],      // 驚蟄 2025/3/5 16:04
-            qingming: [4, 4, 20, 42],    // 清明 2025/4/4 20:42
-            lixia: [5, 5, 13, 48],       // 立夏 2025/5/5 13:48
-            mangzhong: [6, 5, 17, 47],   // 芒種 2025/6/5 17:47
-            xiaoshu: [7, 7, 3, 57],      // 小暑 2025/7/7 3:57
-            liqiu: [8, 7, 13, 46],       // 立秋 2025/8/7 13:46
-            bailu: [9, 7, 16, 49],       // 白露 2025/9/7 16:49
-            hanlu: [10, 8, 8, 39],       // 寒露 2025/10/8 8:39
-            lidong: [11, 7, 12, 3],      // 立冬 2025/11/7 12:03
-            daxue: [12, 7, 5, 5],        // 大雪 2025/12/7 5:05
-            xiaohan: [1, 5, 10, 31]      // 小寒 2026/1/5 10:31 (次年)
+    try {
+        console.log('Attempting to fetch solar terms data from ./data/solar-terms-complete.json');
+        const response = await fetch('./data/solar-terms-complete.json');
+        console.log('Fetch response status:', response.status, response.statusText);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-    };
+        solarTermsDataCache = await response.json();
+        console.log('Solar terms data loaded successfully:', Object.keys(solarTermsDataCache).length, 'years');
+        console.log('Available years:', Object.keys(solarTermsDataCache).slice(0, 10).join(', '), '...');
+        // Check if 1975 data exists
+        if (solarTermsDataCache['1975']) {
+            console.log('1975 lichun data:', solarTermsDataCache['1975'].lichun);
+        } else {
+            console.log('1975 data NOT found in loaded data');
+        }
+        return solarTermsDataCache;
+    } catch (error) {
+        console.error('Failed to load solar terms data from JSON:', error);
+        
+        // 备用数据：包含测试需要的1975年数据
+        console.log('Using fallback solar terms data with 1975 data');
+        solarTermsDataCache = {
+            1975: { 
+                lichun: [2, 4, 18, 59], jingzhe: [3, 6, 13, 6], qingming: [4, 5, 22, 20], 
+                lixia: [5, 6, 5, 31], mangzhong: [6, 6, 10, 50], xiaoshu: [7, 7, 14, 27], 
+                liqiu: [8, 7, 16, 22], bailu: [9, 8, 16, 30], hanlu: [10, 8, 15, 10], 
+                lidong: [11, 8, 12, 32], daxue: [12, 7, 8, 58], xiaohan: [1, 6, 7, 18] 
+            },
+            2000: { lichun: [2, 4, 20, 29], jingzhe: [3, 5, 15, 30], qingming: [4, 4, 21, 45], lixia: [5, 5, 12, 45], mangzhong: [6, 5, 16, 45], xiaoshu: [7, 6, 22, 56], liqiu: [8, 7, 12, 56], bailu: [9, 7, 20, 12], hanlu: [10, 8, 10, 29], lidong: [11, 7, 10, 29], daxue: [12, 6, 21, 21], xiaohan: [1, 5, 19, 17] },
+            2024: { lichun: [2, 4, 16, 26], jingzhe: [3, 5, 10, 9], qingming: [4, 4, 14, 51], lixia: [5, 5, 7, 48], mangzhong: [6, 5, 11, 41], xiaoshu: [7, 6, 21, 37], liqiu: [8, 7, 7, 42], bailu: [9, 7, 14, 11], hanlu: [10, 8, 1, 58], lidong: [11, 7, 6, 4], daxue: [12, 6, 16, 59], xiaohan: [1, 5, 15, 38] },
+            2025: { lichun: [2, 3, 22, 10], jingzhe: [3, 5, 16, 4], qingming: [4, 4, 20, 42], lixia: [5, 5, 13, 48], mangzhong: [6, 5, 17, 47], xiaoshu: [7, 7, 3, 57], liqiu: [8, 7, 13, 46], bailu: [9, 7, 16, 49], hanlu: [10, 8, 8, 39], lidong: [11, 7, 12, 3], daxue: [12, 7, 5, 5], xiaohan: [1, 5, 10, 31] }
+        };
+        return solarTermsDataCache;
+    }
 }
 
-// 精确的节气时间表 (基于天文计算，时间为香港时间 UTC+8)
-const solarTermsData = loadCompleteSolarTermsData();
+// 精确的节气时间表 - 异步加载
+let solarTermsData = null;
+let solarTermsDataPromise = null;
+
+// 初始化节气数据
+function initializeSolarTermsData() {
+    if (!solarTermsDataPromise) {
+        solarTermsDataPromise = loadCompleteSolarTermsData().then(data => {
+            solarTermsData = data;
+            return data;
+        }).catch(error => {
+            console.error('Failed to initialize solar terms data:', error);
+            solarTermsData = {};
+            return {};
+        });
+    }
+    return solarTermsDataPromise;
+}
+
+// 确保数据已加载的工具函数
+async function ensureSolarTermsDataLoaded() {
+    if (!solarTermsData) {
+        console.log('Solar terms data not loaded, initializing...');
+        await initializeSolarTermsData();
+        console.log('After initialization, solarTermsData is:', solarTermsData ? 'loaded' : 'still null');
+        if (solarTermsData && solarTermsData['1975']) {
+            console.log('1975 data available:', Object.keys(solarTermsData['1975']));
+        }
+    } else {
+        console.log('Solar terms data already loaded');
+    }
+    return solarTermsData;
+}
 
 // 简化的立春日期表 (用于没有精确数据的年份)
 const lichunDates = {
@@ -103,9 +123,12 @@ const solarTermDates = {
 function getYearPillar(year, month, day, hour, minute) {
     let adjustedYear = year;
     
+    console.log(`getYearPillar: solarTermsData is ${solarTermsData ? 'loaded' : 'null'}`);
+    
     // Check if we have precise solar term data for this year
-    const yearData = solarTermsData[year];
+    const yearData = solarTermsData && solarTermsData[year];
     if (yearData && yearData.lichun) {
+        console.log(`Using precise solar term data for ${year}, lichun:`, yearData.lichun);
         // Use precise time check for 立春
         const isAfterLichun = isAfterSolarTerm(year, month, day, hour, minute, 'lichun');
         adjustedYear = isAfterLichun ? year : year - 1;
@@ -133,7 +156,7 @@ function getYearPillar(year, month, day, hour, minute) {
 
 // 检查日期时间是否在节气之后
 function isAfterSolarTerm(year, month, day, hour, minute, solarTerm) {
-    const termData = solarTermsData[year] && solarTermsData[year][solarTerm];
+    const termData = solarTermsData && solarTermsData[year] && solarTermsData[year][solarTerm];
     if (!termData) return false; // 没有精确数据时返回false
     
     const [termMonth, termDay, termHour, termMinute] = termData;
@@ -148,8 +171,11 @@ function isAfterSolarTerm(year, month, day, hour, minute, solarTerm) {
 function getMonthPillar(year, month, day, yearStem, hour = 12, minute = 0) {
     let zhiIndex; // 地支索引 0=寅, 1=卯, 2=辰...
     
+    console.log(`getMonthPillar: solarTermsData is ${solarTermsData ? 'loaded' : 'null'} for year ${year}`);
+    
     // 如果有精确的节气数据，使用精确计算
-    if (solarTermsData[year]) {
+    if (solarTermsData && solarTermsData[year]) {
+        console.log(`Using precise solar term data for month calculation in ${year}`);
         const data = solarTermsData[year];
         
         // 按时间顺序检查节气
@@ -331,6 +357,11 @@ function getHourPillar(dayStem, hour) {
 
 // 计算八字
 function calculateBaZi(year, month, day, hour, isEarlyZi = false, birthHour = 12, birthMinute = 0) {
+    // Ensure data is loaded before calculating
+    if (!solarTermsData) {
+        console.warn('Solar terms data not loaded yet, using fallback calculations');
+    }
+    
     const yearPillar = getYearPillar(year, month, day, birthHour, birthMinute);
     const monthPillar = getMonthPillar(year, month, day, yearPillar.stem, birthHour, birthMinute);
     
@@ -435,28 +466,46 @@ function timeToShichen(timeString) {
     return { shichen, isEarlyZi };
 }
 
-// 表单提交处理
-document.getElementById('birthdateForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const year = parseInt(document.getElementById('year').value);
-    const month = parseInt(document.getElementById('month').value);
-    const day = parseInt(document.getElementById('day').value);
-    const timeString = document.getElementById('time').value;
-    
-    if (!year || !month || !day || !timeString) {
-        alert('请填写完整的出生信息');
-        return;
+// 表单提交处理 (只在主应用页面中运行)
+const birthdateForm = document.getElementById('birthdateForm');
+if (birthdateForm) {
+    birthdateForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const year = parseInt(document.getElementById('year').value);
+        const month = parseInt(document.getElementById('month').value);
+        const day = parseInt(document.getElementById('day').value);
+        const timeString = document.getElementById('time').value;
+        
+        if (!year || !month || !day || !timeString) {
+            alert('请填写完整的出生信息');
+            return;
+        }
+        
+        // 确保节气数据已加载
+        await ensureSolarTermsDataLoaded();
+        
+        const timeResult = timeToShichen(timeString);
+        const [hours, minutes] = timeString.split(':').map(Number);
+        const baZi = calculateBaZi(year, month, day, timeResult.shichen, timeResult.isEarlyZi, hours, minutes);
+        displayResult(baZi);
+    });
+}
+
+// 页面加载完成后的初始化 (只在主应用页面中运行)
+document.addEventListener('DOMContentLoaded', async function() {
+    // 只在主应用页面中设置年份
+    const yearInput = document.getElementById('year');
+    if (yearInput) {
+        const currentYear = new Date().getFullYear();
+        yearInput.value = currentYear;
     }
     
-    const timeResult = timeToShichen(timeString);
-    const [hours, minutes] = timeString.split(':').map(Number);
-    const baZi = calculateBaZi(year, month, day, timeResult.shichen, timeResult.isEarlyZi, hours, minutes);
-    displayResult(baZi);
-});
-
-// 页面加载完成后的初始化
-document.addEventListener('DOMContentLoaded', function() {
-    const currentYear = new Date().getFullYear();
-    document.getElementById('year').value = currentYear;
+    // 预加载节气数据 (所有页面都需要)
+    try {
+        await initializeSolarTermsData();
+        console.log('Solar terms data preloaded successfully');
+    } catch (error) {
+        console.warn('Failed to preload solar terms data:', error);
+    }
 });

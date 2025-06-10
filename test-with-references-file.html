@@ -325,7 +325,7 @@
             }
         }
         
-        function runAllTests() {
+        async function runAllTests() {
             if (testReferences.length === 0) {
                 document.getElementById('results').innerHTML = `
                     <div class="no-data">
@@ -335,6 +335,9 @@
                 `;
                 return;
             }
+            
+            // Ensure solar terms data is loaded
+            await ensureSolarTermsDataLoaded();
             
             const results = [];
             let totalTests = testReferences.length;
@@ -346,8 +349,8 @@
                 hour: { total: 0, passed: 0 }
             };
             
-            testReferences.forEach(ref => {
-                const result = runSingleTest(ref);
+            for (const ref of testReferences) {
+                const result = await runSingleTest(ref);
                 results.push(result);
                 
                 if (result.allPassed) passedTests++;
@@ -361,14 +364,17 @@
                         }
                     }
                 });
-            });
+            }
             
             displaySummary(totalTests, passedTests, pillarStats);
             displayResults(results);
         }
         
-        function runSingleTest(reference) {
+        async function runSingleTest(reference) {
             try {
+                // Ensure solar terms data is loaded
+                await ensureSolarTermsDataLoaded();
+                
                 // Parse date
                 const [year, month, day] = reference.date.split('-').map(Number);
                 const timeResult = timeToShichen(reference.time);
@@ -489,14 +495,16 @@
                 
                 // Columns 3-6: Pillars (Hour, Day, Month, Year)
                 if (result.error) {
-                    html += `<td colspan="4" style="text-align: center;">Error: ${result.error}</td>`;
+                    html += `<td colspan="4" style="text-align: center; color: #dc3545;">Error: ${result.error}</td>`;
                 } else {
                     // Hour Column
                     html += `<td>`;
                     if (result.pillars.hour) {
                         html += result.pillars.hour.calculated;
                         if (!result.pillars.hour.match) {
-                            html += `<br><small style="color: #dc3545;">≠ ${result.pillars.hour.expected}</small>`;
+                            html += `<br><small style="color: #dc3545; font-weight: bold;">✗ ${result.pillars.hour.expected}</small>`;
+                        } else {
+                            html += `<br><small style="color: #28a745;">✓</small>`;
                         }
                     } else {
                         html += 'N/A';
@@ -508,7 +516,9 @@
                     if (result.pillars.day) {
                         html += result.pillars.day.calculated;
                         if (!result.pillars.day.match) {
-                            html += `<br><small style="color: #dc3545;">≠ ${result.pillars.day.expected}</small>`;
+                            html += `<br><small style="color: #dc3545; font-weight: bold;">✗ ${result.pillars.day.expected}</small>`;
+                        } else {
+                            html += `<br><small style="color: #28a745;">✓</small>`;
                         }
                     } else {
                         html += 'N/A';
@@ -520,7 +530,9 @@
                     if (result.pillars.month) {
                         html += result.pillars.month.calculated;
                         if (!result.pillars.month.match) {
-                            html += `<br><small style="color: #dc3545;">≠ ${result.pillars.month.expected}</small>`;
+                            html += `<br><small style="color: #dc3545; font-weight: bold;">✗ ${result.pillars.month.expected}</small>`;
+                        } else {
+                            html += `<br><small style="color: #28a745;">✓</small>`;
                         }
                     } else {
                         html += 'N/A';
@@ -532,7 +544,9 @@
                     if (result.pillars.year) {
                         html += result.pillars.year.calculated;
                         if (!result.pillars.year.match) {
-                            html += `<br><small style="color: #dc3545;">≠ ${result.pillars.year.expected}</small>`;
+                            html += `<br><small style="color: #dc3545; font-weight: bold;">✗ ${result.pillars.year.expected}</small>`;
+                        } else {
+                            html += `<br><small style="color: #28a745;">✓</small>`;
                         }
                     } else {
                         html += 'N/A';
@@ -552,6 +566,39 @@
         function clearResults() {
             document.getElementById('summary').innerHTML = '';
             document.getElementById('results').innerHTML = '';
+        }
+        
+        // Auto-load actual test data from JSON file
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Test page DOM loaded, auto-loading test data from JSON...');
+            // Small delay to ensure everything is ready
+            setTimeout(() => {
+                loadTestDataFromJSON();
+            }, 100);
+        });
+        
+        // Load test data from the actual JSON file
+        async function loadTestDataFromJSON() {
+            try {
+                console.log('Attempting to load test data from ./data/bazi-references-2025-06-09.json');
+                const response = await fetch('./data/bazi-references-2025-06-09.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                
+                if (Array.isArray(data)) {
+                    testReferences = data;
+                    updateDataSourceStatus();
+                    console.log(`Successfully loaded ${testReferences.length} test records from JSON file`);
+                } else {
+                    throw new Error('JSON data is not an array');
+                }
+            } catch (error) {
+                console.error('Failed to load test data from JSON:', error);
+                console.log('Falling back to sample data...');
+                loadSampleData();
+            }
         }
         
         // Initialize

@@ -225,7 +225,8 @@
             <div>
                 <strong>數據統計 (Data Statistics):</strong>
                 <span id="yearCount">0</span> 年 (years) | 
-                <span id="termCount">0</span> 節氣數據 (terms)
+                <span id="termCount">0</span> 節氣數據 (terms) |
+                <span id="dataSource">數據來源 (Source): <span id="sourceType">Unknown</span></span>
             </div>
             <div>
                 <button class="btn-success" onclick="loadSampleYear()">
@@ -282,6 +283,8 @@
         </div>
     </div>
     
+    <!-- Load script.js to access embedded solar terms data -->
+    <script src="script.js"></script>
     <script>
         // 12 Solar Terms for month pillars (節, not 中)
         const monthSolarTerms = [
@@ -302,14 +305,25 @@
         // Database key
         const DB_KEY = 'monthSolarTermsData';
         
-        // Load all data from localStorage
+        // Load all data from embedded script.js solarTermsData
         function loadAllData() {
+            // First try to get data from script.js (embedded data)
+            if (typeof solarTermsData !== 'undefined' && solarTermsData) {
+                return solarTermsData;
+            }
+            
+            // Fallback to localStorage if script.js data not available
             const data = localStorage.getItem(DB_KEY);
             return data ? JSON.parse(data) : {};
         }
         
-        // Save all data to localStorage
+        // Save all data to localStorage (only if not using embedded data)
         function saveAllData(data) {
+            if (typeof solarTermsData !== 'undefined' && solarTermsData) {
+                // Using embedded data from script.js - show read-only message
+                alert('正在使用 script.js 內建數據，無法修改。\nUsing embedded data from script.js - read-only mode.');
+                return;
+            }
             localStorage.setItem(DB_KEY, JSON.stringify(data));
             updateStatistics();
         }
@@ -508,6 +522,16 @@
             
             document.getElementById('yearCount').textContent = years.length;
             document.getElementById('termCount').textContent = totalTerms;
+            
+            // Update data source indicator
+            const sourceType = document.getElementById('sourceType');
+            if (typeof solarTermsData !== 'undefined' && solarTermsData) {
+                sourceType.textContent = 'script.js (embedded, read-only)';
+                sourceType.style.color = '#28a745';
+            } else {
+                sourceType.textContent = 'localStorage (editable)';
+                sourceType.style.color = '#dc3545';
+            }
         }
         
         // Export all data
