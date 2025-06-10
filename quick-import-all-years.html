@@ -14,12 +14,12 @@
 </head>
 <body>
     <div class="container">
-        <h1>快速導入全部75年節氣數據</h1>
-        <h2>Quick Import All 75 Years (1950-2025)</h2>
+        <h1>快速導入全部76年節氣數據</h1>
+        <h2>Quick Import All 76 Years (1950-2025)</h2>
         
         <div class="info">
-            <strong>將導入:</strong> 1950-2025年完整節氣數據 (75年)<br>
-            <strong>Will import:</strong> Complete solar terms data 1950-2025 (75 years)
+            <strong>將導入:</strong> 1950-2025年完整節氣數據 (76年)<br>
+            <strong>Will import:</strong> Complete solar terms data 1950-2025 (76 years)
         </div>
         
         <button onclick="importAllYears()">導入全部數據 (Import All Data)</button>
@@ -30,7 +30,7 @@
     </div>
     
     <script>
-        // Complete data (shortened for demo - includes all missing years)
+        // Complete data for all 76 years (1950-2025)
         const allMissingYears = {
             // 1950s-1960s data
             1950: { lichun: [2, 4, 17, 21], jingzhe: [3, 6, 11, 37], qingming: [4, 5, 16, 46], lixia: [5, 6, 6, 59], mangzhong: [6, 6, 11, 13], xiaoshu: [7, 7, 21, 13], liqiu: [8, 8, 7, 33], bailu: [9, 8, 14, 32], hanlu: [10, 9, 5, 27], lidong: [11, 8, 14, 5], daxue: [12, 8, 1, 22], xiaohan: [1, 6, 13, 26] },
@@ -103,7 +103,20 @@
             2011: { lichun: [2, 4, 12, 28], jingzhe: [3, 6, 7, 29], qingming: [4, 5, 13, 44], lixia: [5, 6, 4, 44], mangzhong: [6, 6, 8, 44], xiaoshu: [7, 7, 14, 55], liqiu: [8, 8, 4, 55], bailu: [9, 8, 12, 11], hanlu: [10, 9, 2, 28], lidong: [11, 8, 2, 28], daxue: [12, 7, 13, 20], xiaohan: [1, 6, 11, 16] },
             2012: { lichun: [2, 4, 18, 17], jingzhe: [3, 5, 13, 18], qingming: [4, 4, 19, 33], lixia: [5, 5, 10, 33], mangzhong: [6, 5, 14, 33], xiaoshu: [7, 6, 20, 44], liqiu: [8, 7, 10, 44], bailu: [9, 7, 18, 0], hanlu: [10, 8, 8, 17], lidong: [11, 7, 8, 17], daxue: [12, 6, 19, 9], xiaohan: [1, 5, 17, 5] },
             2013: { lichun: [2, 4, 0, 6], jingzhe: [3, 5, 19, 7], qingming: [4, 5, 1, 22], lixia: [5, 5, 16, 22], mangzhong: [6, 5, 20, 22], xiaoshu: [7, 7, 2, 33], liqiu: [8, 7, 16, 33], bailu: [9, 7, 23, 49], hanlu: [10, 8, 14, 6], lidong: [11, 7, 14, 6], daxue: [12, 7, 0, 58], xiaohan: [1, 5, 22, 54] },
-            2014: { lichun: [2, 4, 5, 55], jingzhe: [3, 6, 0, 56], qingming: [4, 5, 7, 11], lixia: [5, 5, 22, 11], mangzhong: [6, 6, 2, 11], xiaoshu: [7, 7, 8, 22], liqiu: [8, 7, 22, 22], bailu: [9, 8, 5, 38], hanlu: [10, 8, 19, 55], lidong: [11, 7, 19, 55], daxue: [12, 7, 6, 47], xiaohan: [1, 6, 4, 43] }
+            2014: { lichun: [2, 4, 5, 55], jingzhe: [3, 6, 0, 56], qingming: [4, 5, 7, 11], lixia: [5, 5, 22, 11], mangzhong: [6, 6, 2, 11], xiaoshu: [7, 7, 8, 22], liqiu: [8, 7, 22, 22], bailu: [9, 8, 5, 38], hanlu: [10, 8, 19, 55], lidong: [11, 7, 19, 55], daxue: [12, 7, 6, 47], xiaohan: [1, 6, 4, 43] },
+            
+            // 2015-2025 data (missing years)
+            2015: { lichun: [2, 4, 11, 58], jingzhe: [3, 6, 5, 55], qingming: [4, 5, 10, 39], lixia: [5, 6, 3, 52], mangzhong: [6, 6, 7, 58], xiaoshu: [7, 7, 18, 12], liqiu: [8, 8, 4, 1], bailu: [9, 8, 6, 59], hanlu: [10, 8, 22, 42], lidong: [11, 8, 1, 58], daxue: [12, 7, 18, 53], xiaohan: [1, 6, 0, 20] },
+            2016: { lichun: [2, 4, 17, 46], jingzhe: [3, 5, 11, 43], qingming: [4, 4, 16, 27], lixia: [5, 5, 9, 42], mangzhong: [6, 5, 13, 48], xiaoshu: [7, 7, 0, 3], liqiu: [8, 7, 9, 52], bailu: [9, 7, 12, 51], hanlu: [10, 8, 4, 33], lidong: [11, 7, 7, 47], daxue: [12, 7, 0, 41], xiaohan: [1, 5, 6, 8] },
+            2017: { lichun: [2, 3, 23, 34], jingzhe: [3, 5, 17, 32], qingming: [4, 4, 22, 17], lixia: [5, 5, 15, 30], mangzhong: [6, 5, 19, 36], xiaoshu: [7, 7, 5, 50], liqiu: [8, 7, 15, 39], bailu: [9, 7, 18, 38], hanlu: [10, 8, 10, 22], lidong: [11, 7, 13, 37], daxue: [12, 7, 6, 32], xiaohan: [1, 5, 11, 55] },
+            2018: { lichun: [2, 4, 5, 28], jingzhe: [3, 5, 23, 28], qingming: [4, 5, 4, 12], lixia: [5, 5, 21, 25], mangzhong: [6, 6, 1, 29], xiaoshu: [7, 7, 11, 41], liqiu: [8, 7, 21, 30], bailu: [9, 8, 0, 29], hanlu: [10, 8, 16, 14], lidong: [11, 7, 19, 31], daxue: [12, 7, 12, 25], xiaohan: [1, 5, 17, 48] },
+            2019: { lichun: [2, 4, 11, 14], jingzhe: [3, 6, 5, 9], qingming: [4, 5, 9, 51], lixia: [5, 6, 3, 2], mangzhong: [6, 6, 7, 6], xiaoshu: [7, 7, 17, 20], liqiu: [8, 8, 3, 12], bailu: [9, 8, 6, 16], hanlu: [10, 8, 22, 5], lidong: [11, 8, 1, 24], daxue: [12, 7, 18, 18], xiaohan: [1, 5, 23, 39] },
+            2020: { lichun: [2, 4, 17, 3], jingzhe: [3, 5, 10, 59], qingming: [4, 4, 15, 39], lixia: [5, 5, 8, 48], mangzhong: [6, 5, 12, 49], xiaoshu: [7, 6, 23, 0], liqiu: [8, 7, 8, 49], bailu: [9, 7, 11, 50], hanlu: [10, 8, 3, 38], lidong: [11, 7, 6, 59], daxue: [12, 6, 23, 59], xiaohan: [1, 6, 5, 24] },
+            2021: { lichun: [2, 3, 22, 57], jingzhe: [3, 5, 16, 52], qingming: [4, 4, 21, 31], lixia: [5, 5, 14, 39], mangzhong: [6, 5, 18, 39], xiaoshu: [7, 7, 4, 49], liqiu: [8, 7, 14, 37], bailu: [9, 7, 17, 37], hanlu: [10, 8, 9, 25], lidong: [11, 7, 12, 46], daxue: [12, 7, 5, 45], xiaohan: [1, 5, 11, 18] },
+            2022: { lichun: [2, 4, 4, 42], jingzhe: [3, 5, 22, 37], qingming: [4, 5, 3, 15], lixia: [5, 5, 20, 23], mangzhong: [6, 6, 0, 23], xiaoshu: [7, 7, 10, 33], liqiu: [8, 7, 20, 21], bailu: [9, 7, 23, 23], hanlu: [10, 8, 15, 12], lidong: [11, 7, 18, 34], daxue: [12, 7, 11, 35], xiaohan: [1, 5, 17, 4] },
+            2023: { lichun: [2, 4, 10, 33], jingzhe: [3, 6, 4, 29], qingming: [4, 5, 9, 7], lixia: [5, 6, 2, 15], mangzhong: [6, 6, 6, 15], xiaoshu: [7, 7, 16, 25], liqiu: [8, 8, 2, 14], bailu: [9, 8, 5, 16], hanlu: [10, 8, 21, 5], lidong: [11, 8, 0, 27], daxue: [12, 7, 17, 28], xiaohan: [1, 5, 22, 54] },
+            2024: { lichun: [2, 4, 16, 25], jingzhe: [3, 5, 10, 19], qingming: [4, 4, 14, 57], lixia: [5, 5, 8, 3], mangzhong: [6, 5, 12, 2], xiaoshu: [7, 6, 22, 11], liqiu: [8, 7, 7, 59], bailu: [9, 7, 11, 0], hanlu: [10, 8, 2, 49], lidong: [11, 7, 6, 12], daxue: [12, 6, 23, 12], xiaohan: [1, 6, 4, 47] },
+            2025: { lichun: [2, 3, 22, 10], jingzhe: [3, 5, 16, 4], qingming: [4, 4, 20, 42], lixia: [5, 5, 13, 48], mangzhong: [6, 5, 17, 47], xiaoshu: [7, 7, 3, 57], liqiu: [8, 7, 13, 46], bailu: [9, 7, 16, 49], hanlu: [10, 8, 8, 39], lidong: [11, 7, 12, 3], daxue: [12, 7, 5, 5], xiaohan: [1, 5, 10, 31] }
         };
         
         function importAllYears() {
@@ -120,7 +133,7 @@
                 
                 const totalYears = Object.keys(allMissingYears).length;
                 document.getElementById('status').innerHTML = 
-                    `<div class="success">✓ 成功導入 ${totalYears} 年完整數據！<br>Successfully imported ${totalYears} years of complete data!<br><br>總計數據範圍: 1950-2025 (75年)</div>`;
+                    `<div class="success">✓ 成功導入 ${totalYears} 年完整數據！<br>Successfully imported ${totalYears} years of complete data!<br><br>總計數據範圍: 1950-2025 (76年)</div>`;
                 
             } catch (error) {
                 document.getElementById('status').innerHTML = 
@@ -138,7 +151,7 @@
                     `<div class="info">
                         <strong>當前已存儲 (Currently Stored):</strong> ${years.length} 年<br>
                         <strong>範圍 (Range):</strong> ${years[0]} - ${years[years.length-1]}<br>
-                        <strong>覆蓋率 (Coverage):</strong> ${Math.round(years.length/75*100)}% (${years.length}/75)
+                        <strong>覆蓋率 (Coverage):</strong> ${Math.round(years.length/76*100)}% (${years.length}/76)
                     </div>`;
             } else {
                 document.getElementById('status').innerHTML = 
