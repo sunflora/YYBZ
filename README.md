@@ -17,11 +17,7 @@ A comprehensive Chinese Four Pillars (BaZi/八字) astrology calculator with pre
    - Open `index.html` in your web browser
    - Enter birth date and time
    - Click "分析八字 (Analyze Eight Words)"
-
-2. **Import Complete Dataset** (Recommended for accuracy)
-   - Open `quick-import-all-years.html`
-   - Click "導入全部數據 (Import All Data)"
-   - This loads precise solar terms for 1950-2025
+   - **Complete 76-year dataset (1950-2025) is built-in** - no setup required!
 
 ## 📁 Files
 
@@ -37,14 +33,14 @@ A comprehensive Chinese Four Pillars (BaZi/八字) astrology calculator with pre
 - `data/bazi-references-2025-06-09.json` - Sample reference data
 
 ### Data Management
-- `solar-terms-manager.html` - Solar terms data management interface
-- `quick-import-all-years.html` - Complete 76-year dataset import tool
-- `complete-solar-terms-1950-2024.js` - Complete solar terms data (1950-2024)
+- `solar-terms-manager.html` - Solar terms data management interface  
+- `complete-solar-terms-1950-2024.js` - Complete solar terms data (1950-2024) for reference
 
 ## 🔧 Technical Details
 
 ### Solar Terms Implementation
-- Covers 12 major solar terms with exact astronomical times
+- **Built-in 76-year dataset**: Complete coverage 1950-2025 with exact astronomical times
+- Covers 12 major solar terms with precise hour/minute timings
 - Handles edge cases like early/late 子时 (zi hour) correctly
 - Uses precise Hong Kong time (UTC+8) calculations
 
