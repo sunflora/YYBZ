@@ -177,11 +177,11 @@
 </head>
 <body>
     <div class="container">
-        <h1>八字测试对比系统<br><small>BaZi Test Comparison System - File Storage Compatible</small></h1>
+        <h1>八字測試對比系統<br><small>BaZi Test Comparison System - File Storage Compatible</small></h1>
         
         <!-- Data Source Section -->
         <div class="import-section">
-            <h3>数据来源 (Data Source)</h3>
+            <h3>數據來源 (Data Source)</h3>
             <div id="dataSourceStatus" class="data-source">
                 <span class="status-indicator status-disconnected"></span>
                 <span>No data loaded. Please import test data.</span>
@@ -189,27 +189,27 @@
             
             <div class="file-input">
                 <button class="btn-primary" onclick="document.getElementById('importFile').click()">
-                    导入测试数据 (Import Test Data)
+                    導入測試數據 (Import Test Data)
                 </button>
                 <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importTestData(event)">
                 
                 <button class="btn-secondary" onclick="loadFromLocalStorage()">
-                    从缓存加载 (Load from Cache)
+                    從緩存加載 (Load from Cache)
                 </button>
                 
                 <button class="btn-secondary" onclick="loadSampleData()">
-                    加载示例数据 (Load Sample Data)
+                    加載示例數據 (Load Sample Data)
                 </button>
             </div>
         </div>
         
         <div class="controls">
             <button class="btn-primary" onclick="runAllTests()" id="runTestsBtn" disabled>
-                运行所有测试 (Run All Tests)
+                運行所有測試 (Run All Tests)
             </button>
-            <button class="btn-secondary" onclick="clearResults()">清除结果 (Clear Results)</button>
+            <button class="btn-secondary" onclick="clearResults()">清除結果 (Clear Results)</button>
             <button class="btn-secondary" onclick="window.open('reference-manager-file.html')">
-                管理参考数据 (Manage References)
+                管理參考數據 (Manage References)
             </button>
         </div>
         
@@ -233,12 +233,12 @@
                     if (Array.isArray(data)) {
                         testReferences = data;
                         updateDataSourceStatus();
-                        alert(`成功导入 ${testReferences.length} 条测试数据！\\nSuccessfully imported ${testReferences.length} test records!`);
+                        alert(`成功導入 ${testReferences.length} 條測試數據！\\nSuccessfully imported ${testReferences.length} test records!`);
                     } else {
-                        alert('无效的数据格式！\\nInvalid data format!');
+                        alert('無效的數據格式！\\nInvalid data format!');
                     }
                 } catch (error) {
-                    alert('导入失败：' + error.message + '\\nImport failed: ' + error.message);
+                    alert('導入失敗：' + error.message + '\\nImport failed: ' + error.message);
                 }
             };
             reader.readAsText(file);
@@ -251,12 +251,12 @@
                 try {
                     testReferences = JSON.parse(data);
                     updateDataSourceStatus();
-                    alert(`从缓存加载了 ${testReferences.length} 条数据！\\nLoaded ${testReferences.length} records from cache!`);
+                    alert(`從緩存加載了 ${testReferences.length} 條數據！\\nLoaded ${testReferences.length} records from cache!`);
                 } catch (error) {
-                    alert('加载缓存失败：' + error.message);
+                    alert('加載緩存失敗：' + error.message);
                 }
             } else {
-                alert('缓存中没有找到数据！\\nNo data found in cache!');
+                alert('緩存中沒有找到數據！\\nNo data found in cache!');
             }
         }
         
@@ -302,7 +302,7 @@
             ];
             
             updateDataSourceStatus();
-            alert(`加载了 ${testReferences.length} 条示例数据！\\nLoaded ${testReferences.length} sample records!`);
+            alert(`加載了 ${testReferences.length} 條示例數據！\\nLoaded ${testReferences.length} sample records!`);
         }
         
         // Update data source status
@@ -313,7 +313,7 @@
             if (testReferences.length > 0) {
                 statusDiv.innerHTML = `
                     <span class="status-indicator status-connected"></span>
-                    <span>已加载 ${testReferences.length} 条测试数据 (${testReferences.length} test records loaded)</span>
+                    <span>已加載 ${testReferences.length} 條測試數據 (${testReferences.length} test records loaded)</span>
                 `;
                 runBtn.disabled = false;
             } else {
@@ -329,7 +329,7 @@
             if (testReferences.length === 0) {
                 document.getElementById('results').innerHTML = `
                     <div class="no-data">
-                        没有找到参考数据。请先导入测试数据。<br>
+                        沒有找到參考數據。請先導入測試數據。<br>
                         No reference data found. Please import test data first.
                     </div>
                 `;
@@ -462,17 +462,17 @@
             const resultsDiv = document.getElementById('results');
             
             let html = `
-                <h3>详细测试结果 (Detailed Test Results)</h3>
+                <h3>詳細測試結果 (Detailed Test Results)</h3>
                 <table>
                     <thead>
                         <tr>
-                            <th>测试名称<br>Test Name</th>
-                            <th>日期时间<br>Date/Time</th>
-                            <th>时柱<br>Hour</th>
+                            <th>測試名稱<br>Test Name</th>
+                            <th>日期時間<br>Date/Time</th>
+                            <th>時柱<br>Hour</th>
                             <th>日柱<br>Day</th>
                             <th>月柱<br>Month</th>
                             <th>年柱<br>Year</th>
-                            <th>状态<br>Status</th>
+                            <th>狀態<br>Status</th>
                         </tr>
                     </thead>
                     <tbody>

@@ -4,7 +4,7 @@ const heavenlyStems = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '
 // 地支 (Earthly Branches)
 const earthlyBranches = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
 
-// 五行对应
+// 五行對應
 const elements = {
     '甲': '木', '乙': '木',
     '丙': '火', '丁': '火',
@@ -16,11 +16,11 @@ const elements = {
     '申': '金', '酉': '金', '戌': '土', '亥': '水'
 };
 
-// 从JSON文件加载完整的节气数据 (1950-2025年，76年完整数据集)
+// 從JSON文件加載完整的節氣數據 (1950-2025年，76年完整數據集)
 let solarTermsDataCache = null;
 
 async function loadCompleteSolarTermsData() {
-    // 如果已经加载过，直接返回缓存
+    // 如果已經加載過，直接返回緩存
     if (solarTermsDataCache) {
         console.log('Using cached solar terms data');
         return solarTermsDataCache;
@@ -46,7 +46,7 @@ async function loadCompleteSolarTermsData() {
     } catch (error) {
         console.error('Failed to load solar terms data from JSON:', error);
         
-        // 备用数据：包含测试需要的1975年数据
+        // 備用數據：包含測試需要的1975年數據
         console.log('Using fallback solar terms data with 1975 data');
         solarTermsDataCache = {
             1975: { 
@@ -63,11 +63,11 @@ async function loadCompleteSolarTermsData() {
     }
 }
 
-// 精确的节气时间表 - 异步加载
+// 精確的節氣時間表 - 異步加載
 let solarTermsData = null;
 let solarTermsDataPromise = null;
 
-// 初始化节气数据
+// 初始化節氣數據
 function initializeSolarTermsData() {
     if (!solarTermsDataPromise) {
         solarTermsDataPromise = loadCompleteSolarTermsData().then(data => {
@@ -82,7 +82,7 @@ function initializeSolarTermsData() {
     return solarTermsDataPromise;
 }
 
-// 确保数据已加载的工具函数
+// 確保數據已加載的工具函數
 async function ensureSolarTermsDataLoaded() {
     if (!solarTermsData) {
         console.log('Solar terms data not loaded, initializing...');
@@ -97,13 +97,13 @@ async function ensureSolarTermsDataLoaded() {
     return solarTermsData;
 }
 
-// 简化的立春日期表 (用于没有精确数据的年份)
+// 簡化的立春日期表 (用於沒有精確數據的年份)
 const lichunDates = {
     2020: [2, 4], 2021: [2, 3], 2022: [2, 4], 2023: [2, 4], 2024: [2, 4],
     2025: [2, 3], 2026: [2, 4], 2027: [2, 4], 2028: [2, 4], 2029: [2, 3],
 };
 
-// 节气月份起始日期 - 每月的主要节气日期
+// 節氣月份起始日期 - 每月的主要節氣日期
 const solarTermDates = {
     1: 6,   // 小寒 ~1月6日 (丑月)
     2: 4,   // 立春 ~2月4日 (寅月)
@@ -119,7 +119,7 @@ const solarTermDates = {
     12: 7   // 大雪 ~12月7日 (子月)
 };
 
-// 计算年柱
+// 計算年柱
 function getYearPillar(year, month, day, hour, minute) {
     let adjustedYear = year;
     
@@ -140,7 +140,7 @@ function getYearPillar(year, month, day, hour, minute) {
         }
     }
     
-    // 使用正确的60年循环计算
+    // 使用正確的60年循環計算
     // 1984年是甲子年（60年循环的第1年）
     const cyclePosition = (adjustedYear - 1984) % 60;
     const adjustedPosition = cyclePosition < 0 ? cyclePosition + 60 : cyclePosition;
@@ -154,10 +154,10 @@ function getYearPillar(year, month, day, hour, minute) {
     };
 }
 
-// 检查日期时间是否在节气之后
+// 檢查日期時間是否在節氣之後
 function isAfterSolarTerm(year, month, day, hour, minute, solarTerm) {
     const termData = solarTermsData && solarTermsData[year] && solarTermsData[year][solarTerm];
-    if (!termData) return false; // 没有精确数据时返回false
+    if (!termData) return false; // 沒有精確數據時返回false
     
     const [termMonth, termDay, termHour, termMinute] = termData;
     
@@ -167,18 +167,18 @@ function isAfterSolarTerm(year, month, day, hour, minute, solarTerm) {
     return minute >= termMinute;
 }
 
-// 计算月柱
+// 計算月柱
 function getMonthPillar(year, month, day, yearStem, hour = 12, minute = 0) {
     let zhiIndex; // 地支索引 0=寅, 1=卯, 2=辰...
     
     console.log(`getMonthPillar: solarTermsData is ${solarTermsData ? 'loaded' : 'null'} for year ${year}`);
     
-    // 如果有精确的节气数据，使用精确计算
+    // 如果有精確的節氣數據，使用精確計算
     if (solarTermsData && solarTermsData[year]) {
         console.log(`Using precise solar term data for month calculation in ${year}`);
         const data = solarTermsData[year];
         
-        // 按时间顺序检查节气
+        // 按時間順序檢查節氣
         if (month === 1) {
             if (isAfterSolarTerm(year, month, day, hour, minute, 'xiaohan')) {
                 zhiIndex = 11; // 丑月 (小寒后)
@@ -253,7 +253,7 @@ function getMonthPillar(year, month, day, yearStem, hour = 12, minute = 0) {
             }
         }
     } else {
-        // 使用原来的简化方法
+        // 使用原來的簡化方法
         if (month === 1) {
             zhiIndex = day >= 6 ? 11 : 10;
         } else if (month === 2) {
@@ -284,7 +284,7 @@ function getMonthPillar(year, month, day, yearStem, hour = 12, minute = 0) {
     const monthBranches = ['寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥', '子', '丑'];
     const monthBranch = monthBranches[zhiIndex];
     
-    // 五虎遁计算月干
+    // 五虎遁計算月干
     const yearStemIndex = heavenlyStems.indexOf(yearStem);
     const yinMonthStems = [2, 4, 6, 8, 0];
     let baseIndex;
@@ -303,10 +303,10 @@ function getMonthPillar(year, month, day, yearStem, hour = 12, minute = 0) {
     };
 }
 
-// 计算日柱 - 使用正确的参考日期
+// 計算日柱 - 使用正確的參考日期
 function getDayPillar(year, month, day) {
     // 已知：1975年4月9日是乙酉日
-    // 使用这个作为参考点来计算其他日期
+    // 使用這個作為參考點來計算其他日期
     const baseDate = new Date(1975, 3, 9); // 1975年4月9日
     const targetDate = new Date(year, month - 1, day);
     const daysDiff = Math.floor((targetDate - baseDate) / (1000 * 60 * 60 * 24));
@@ -319,7 +319,7 @@ function getDayPillar(year, month, day) {
     let stemIndex = (baseStemIndex + daysDiff) % 10;
     let branchIndex = (baseBranchIndex + daysDiff) % 12;
     
-    // 处理负数
+    // 處理負數
     if (stemIndex < 0) stemIndex += 10;
     if (branchIndex < 0) branchIndex += 12;
     
@@ -329,11 +329,11 @@ function getDayPillar(year, month, day) {
     };
 }
 
-// 计算时柱 - 五鼠遁法
+// 計算時柱 - 五鼠遁法
 function getHourPillar(dayStem, hour) {
     const dayStemIndex = heavenlyStems.indexOf(dayStem);
     
-    // 五鼠遁口诀：甲己还加甲，乙庚丙作初，丙辛从戊起，丁壬庚子居，戊癸何方发，壬子是真途
+    // 五鼠遁口訣：甲己還加甲，乙庚丙作初，丙辛從戊起，丁壬庚子居，戊癸何方發，壬子是真途
     let hourStemStartIndex;
     if (dayStemIndex === 0 || dayStemIndex === 5) { // 甲、己日
         hourStemStartIndex = 0; // 甲子时开始
@@ -355,7 +355,7 @@ function getHourPillar(dayStem, hour) {
     };
 }
 
-// 计算八字
+// 計算八字
 function calculateBaZi(year, month, day, hour, isEarlyZi = false, birthHour = 12, birthMinute = 0) {
     // Ensure data is loaded before calculating
     if (!solarTermsData) {
@@ -365,13 +365,13 @@ function calculateBaZi(year, month, day, hour, isEarlyZi = false, birthHour = 12
     const yearPillar = getYearPillar(year, month, day, birthHour, birthMinute);
     const monthPillar = getMonthPillar(year, month, day, yearPillar.stem, birthHour, birthMinute);
     
-    // 处理早子时和夜子时的特殊情况
+    // 處理早子時和夜子時的特殊情況
     let dayForHourCalc = day;
     if (hour === 0 && !isEarlyZi) {
-        // 夜子时(23:00-24:00)使用第二天的日柱天干
+        // 夜子時(23:00-24:00)使用第二天的日柱天幹
         dayForHourCalc = day + 1;
     }
-    // 早子时(00:00-01:00)不变，使用当天的日柱天干
+    // 早子時(00:00-01:00)不變，使用當天的日柱天幹
     
     const dayPillar = getDayPillar(year, month, day);
     const dayPillarForHour = getDayPillar(year, month, dayForHourCalc);
@@ -385,15 +385,15 @@ function calculateBaZi(year, month, day, hour, isEarlyZi = false, birthHour = 12
     };
 }
 
-// 显示结果
+// 顯示結果
 function displayResult(baZi) {
     const resultDiv = document.getElementById('result');
     
     const html = `
-        <h3>您的八字分析结果</h3>
+        <h3>您的八字分析結果</h3>
         <div class="bazi-display">
             <div class="pillar">
-                <div class="pillar-title">时柱</div>
+                <div class="pillar-title">時柱</div>
                 <div class="heavenly-stem">${baZi.hour.stem}</div>
                 <div class="earthly-branch">${baZi.hour.branch}</div>
                 <div class="element">${elements[baZi.hour.stem]}${elements[baZi.hour.branch]}</div>
@@ -424,49 +424,49 @@ function displayResult(baZi) {
     resultDiv.classList.add('show');
 }
 
-// 将时间转换为时辰
+// 將時間轉換為時辰
 function timeToShichen(timeString) {
     const [hours, minutes] = timeString.split(':').map(Number);
     const totalMinutes = hours * 60 + minutes;
     
-    // 时辰分界：子时23:00-01:00, 丑时01:00-03:00, 寅时03:00-05:00...
+    // 時辰分界：子時23:00-01:00, 丑時01:00-03:00, 寅時03:00-05:00...
     let shichen;
     let isEarlyZi = false;
     
     if (totalMinutes < 1 * 60) {
-        shichen = 0; // 早子时 (00:00-01:00)
+        shichen = 0; // 早子時 (00:00-01:00)
         isEarlyZi = true;
     } else if (totalMinutes >= 23 * 60) {
-        shichen = 0; // 晚子时 (23:00-24:00)
+        shichen = 0; // 晚子時 (23:00-24:00)
         isEarlyZi = false;
     } else if (totalMinutes >= 1 * 60 && totalMinutes < 3 * 60) {
-        shichen = 1; // 丑时
+        shichen = 1; // 丑時
     } else if (totalMinutes >= 3 * 60 && totalMinutes < 5 * 60) {
-        shichen = 2; // 寅时
+        shichen = 2; // 寅時
     } else if (totalMinutes >= 5 * 60 && totalMinutes < 7 * 60) {
-        shichen = 3; // 卯时
+        shichen = 3; // 卯時
     } else if (totalMinutes >= 7 * 60 && totalMinutes < 9 * 60) {
-        shichen = 4; // 辰时
+        shichen = 4; // 辰時
     } else if (totalMinutes >= 9 * 60 && totalMinutes < 11 * 60) {
-        shichen = 5; // 巳时
+        shichen = 5; // 巳時
     } else if (totalMinutes >= 11 * 60 && totalMinutes < 13 * 60) {
-        shichen = 6; // 午时
+        shichen = 6; // 午時
     } else if (totalMinutes >= 13 * 60 && totalMinutes < 15 * 60) {
-        shichen = 7; // 未时
+        shichen = 7; // 未時
     } else if (totalMinutes >= 15 * 60 && totalMinutes < 17 * 60) {
-        shichen = 8; // 申时
+        shichen = 8; // 申時
     } else if (totalMinutes >= 17 * 60 && totalMinutes < 19 * 60) {
-        shichen = 9; // 酉时
+        shichen = 9; // 酉時
     } else if (totalMinutes >= 19 * 60 && totalMinutes < 21 * 60) {
-        shichen = 10; // 戌时
+        shichen = 10; // 戌時
     } else {
-        shichen = 11; // 亥时 (21:00-23:00)
+        shichen = 11; // 亥時 (21:00-23:00)
     }
     
     return { shichen, isEarlyZi };
 }
 
-// 表单提交处理 (只在主应用页面中运行)
+// 表單提交處理 (只在主應用頁面中運行)
 const birthdateForm = document.getElementById('birthdateForm');
 if (birthdateForm) {
     birthdateForm.addEventListener('submit', async function(e) {
@@ -478,11 +478,11 @@ if (birthdateForm) {
         const timeString = document.getElementById('time').value;
         
         if (!year || !month || !day || !timeString) {
-            alert('请填写完整的出生信息');
+            alert('請填寫完整的出生資訊');
             return;
         }
         
-        // 确保节气数据已加载
+        // 確保節氣數據已加載
         await ensureSolarTermsDataLoaded();
         
         const timeResult = timeToShichen(timeString);
@@ -492,16 +492,16 @@ if (birthdateForm) {
     });
 }
 
-// 页面加载完成后的初始化 (只在主应用页面中运行)
+// 頁面加載完成後的初始化 (只在主應用頁面中運行)
 document.addEventListener('DOMContentLoaded', async function() {
-    // 只在主应用页面中设置年份
+    // 只在主應用頁面中設置年份
     const yearInput = document.getElementById('year');
     if (yearInput) {
         const currentYear = new Date().getFullYear();
         yearInput.value = currentYear;
     }
     
-    // 预加载节气数据 (所有页面都需要)
+    // 預加載節氣數據 (所有頁面都需要)
     try {
         await initializeSolarTermsData();
         console.log('Solar terms data preloaded successfully');
